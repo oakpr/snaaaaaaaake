@@ -7,10 +7,19 @@ body {
             align-items: center;
 }
 
-canvas{
+#game{
     box-shadow: black 20px 10px 50px;
+    top: 50%;
+    left: 50%;
+    height: 400px;
+    width: 400px;
+    outline-width: 5px;
+    outline-color: black;
+
+   
 }
 
+/* Willow's code: */
 /* html,
 body {
 	margin: 0px;
@@ -21,10 +30,6 @@ body {
 	background-color: rgb(27, 27, 27);
 }
 
-* {
-	transition: all 0.5s;
-}
-
 canvas {
 	position: absolute;
 	top: 50%;
@@ -33,7 +38,6 @@ canvas {
 	background-color: black;
 }
 
-/* The screen is narrow, so our width should be 100% */
 @media screen and (orientation: portrait) {
 	canvas {
 		width: 100%;
