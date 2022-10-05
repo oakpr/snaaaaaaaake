@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const canvas = document.querySelector("#game");
 const ctx = canvas.getContext("2d");
 /*
@@ -119,3 +120,15 @@ amer typing space
 
 
 */
+=======
+const canvas = document.getElementById("canvas");
+const ctx = document.getContext("2d");
+
+var grd = ctx.createLinearGradient(0,0,200,0);
+
+ctx.fillStyle = "red";
+ctx.fillStyle = grd;
+ctx.fillRect(10, 10, 150, 100);
+
+
+>>>>>>> 47446b2a68630b2bdba486fbb4bd4aa2c18ade7e
