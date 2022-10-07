@@ -1,8 +1,8 @@
 // Snake game
 // Amer, Graham, Waleed
 
-const canvas = document.querySelector("#game");
-const ctx = canvas.getContext("2d");
+const canvas = document.querySelector('#game');
+const ctx = canvas.getContext('2d');
 document.onkeydown = keyDown;
 
 // body[0] = (X, Y) of "head" segment
@@ -31,30 +31,86 @@ const directions = {
     WEST: 'west'
 }
 
+let snakeDir = directions.NORTH;
+let moveBuffer = snakeDir;
+
 class Fruit
 {
-    constructor(x, y)
+    constructor(x, y, color)
     {
         this.fruitX = x;
         this.fruitY = y;
+        this.color = color;
     }
     setPosition(newX, newY)
     {
         this.fruitX = newX;
         this.fruitY = newY;
     }
+    drawFruit()
+    {
+        if(this.fruitX == 0)
+        {
+            this.placeFruit();
+        }
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.fruitX * GRID_SIZE, this.fruitY * GRID_SIZE, GRID_SIZE, GRID_SIZE);
+    }
+    placeFruit()
+    {
+        let shouldPlace = true;
+        let randomX;
+        let randomY;
+        do
+        {
+            // X and Y are now grid coordinates, not pixel coordinates
+            randomX = parseInt(Math.random() * (GRID_COUNT - 2)) + 1;
+            randomY = parseInt(Math.random() * (GRID_COUNT - 2)) + 1;
+            shouldPlace = true;
+            fruitBasket.forEach(fruit => {
+                if(fruit.fruitX == randomX && fruit.fruitY == randomY)
+                {
+                    shouldPlace = false;
+                }
+            });
+            body.forEach(part => {
+                if(part[0] == randomX && part[1] == randomY)
+                {
+                    shouldPlace = false;
+                }
+            });
+        } while(!shouldPlace);
+        this.setPosition(randomX, randomY);
+        // removed painting from placeFruit() method
+        // added paintFruit() method to do this
+        // ctx.fillRect(randomX,randomY,10,10);
+    }
+    // method to check for fruit collision
+    eatFruit()
+    {
+        if(body[0][0] == this.fruitX && body[0][1] == this.fruitY)
+        {
+            this.setPosition(0, 0);
+            return true;
+        }
+        return false;
+    }
 }
 
-var juicyApple = new Fruit(0, 0);
-placeFruit(juicyApple);
-let speed = 5.0;
+let juicyApple = new Fruit(0, 0, 'red');
+let sourOrange = new Fruit(0, 0, 'orange');
+let unripeMango = new Fruit(0, 0, 'limegreen');
+let fruitBasket = [juicyApple, sourOrange, unripeMango];
+fruitBasket.forEach(fruit => fruit.placeFruit());
 
-const time_interval = 60 / speed
-let time = 0
+const speed = 5.0;
+const time_interval = 60 / speed;
+let time = 0;
+
+let score = 0;
+const heading = document.querySelector('#h1');
 
 // build the starting snake
-let snakeDir = directions.NORTH;
-let moveBuffer = snakeDir
 body.push([3, GRID_COUNT - 3]);
 body.push([3, GRID_COUNT - 2]);
 
@@ -63,6 +119,14 @@ gameLoop();
 function gameLoop()
 {
     window.requestAnimationFrame(gameLoop);
+    score = score > body.length ? score : body.length;
+    let head = 'Sn';
+    for(i = 0; i < score; i++)
+    {
+        head += 'a';
+    }
+    head += 'ke';
+    heading.innerHTML = head;
     time += 1;
     drawBackground();
     // Movement loop:
@@ -80,71 +144,21 @@ function gameLoop()
         body.push([3, GRID_COUNT - 2]);
     }
     drawSnake(body);
-    drawFruit(juicyApple);
+    fruitBasket.forEach(fruit => fruit.drawFruit());
 }
 
 function drawBackground()
 {
-    ctx.fillStyle = "purple";
+    ctx.fillStyle = 'purple';
     ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-    ctx.fillStyle = "black";
+    ctx.fillStyle = 'black';
     ctx.fillRect(GRID_SIZE, GRID_SIZE, CANVAS_SIZE - 2 * GRID_SIZE, CANVAS_SIZE - 2 * GRID_SIZE);
 }
 
 function drawSnake(snake)
 {
-    ctx.fillStyle = "green";
-    for(i = 0; i < snake.length; i++)
-    {
-        ctx.fillRect(snake[i][0] * GRID_SIZE, snake[i][1] * GRID_SIZE, SNAKE_SIZE, SNAKE_SIZE);
-    }
-}
-
-function drawFruit(fruitToDraw)
-{
-    if(fruitToDraw.fruitX == 0)
-    {
-        placeFruit(fruitToDraw);
-    }
-    ctx.fillStyle = "red";
-    ctx.fillRect(fruitToDraw.fruitX * GRID_SIZE, fruitToDraw.fruitY * GRID_SIZE, GRID_SIZE, GRID_SIZE);
-}
-
-function placeFruit(fruitToPlace)
-{
-    let shouldPlace = true;
-    var randomX, randomY
-    do
-    {
-        // X and Y are now grid coordinates, not pixel coordinates
-        randomX = parseInt(Math.random() * (GRID_SIZE - 2)) + 1;
-        randomY = parseInt(Math.random() * (GRID_SIZE - 2)) + 1;
-        shouldPlace = true;
-        for(part in body)
-        {
-            if(part[0] == randomX && part[1] == randomY)
-            {
-                shouldPlace = false;
-            }
-        }
-    } while(!shouldPlace);
-
-    fruitToPlace.setPosition(randomX, randomY)
-
-    // removed painting from placeFruit() method
-    // added paintFruit() method to do this
-    // ctx.fillRect(randomX,randomY,10,10);
-}
-
-// method to check for fruit collision
-function eatFruit(snake, fruitToEat)
-{
-    if(snake[0][0] == fruitToEat.fruitX && snake[0][1] == fruitToEat.fruitY)
-    {
-        fruitToEat.setPosition(0, 0);
-        return true;
-    }
-    return false;
+    ctx.fillStyle = 'green';
+    snake.forEach(part => ctx.fillRect(part[0] * GRID_SIZE, part[1] * GRID_SIZE, SNAKE_SIZE, SNAKE_SIZE))
 }
 
 // collision check happens immidietly after movement step
@@ -156,23 +170,24 @@ function checkCollision(snake)
 {
     // wall collision
     // left or right walls
-    if(snake[0][0] == 0 || snake[0][0] == parseInt(CANVAS_SIZE / GRID_COUNT - 1))
+    if(snake[0][0] == 0 || snake[0][0] == GRID_COUNT - 1)
     {
         return true;
     }
     // top or bottom walls
-    if(snake[0][1] == 0 || snake[0][1] == parseInt(CANVAS_SIZE / GRID_COUNT - 1))
+    if(snake[0][1] == 0 || snake[0][1] == GRID_COUNT - 1)
     {
         return true;
     }
     // snake collision
-    for(snakeidx = 1; snakeidx < snake.length; snakeidx++)
-    {
-        if(snake[0][0] == snake[snakeidx][0] && snake[0][1] == snake[snakeidx][1])
+    let collision = false;
+    snake.slice(1, snake.length).forEach(part => {
+        if(snake[0][0] == part[0] && snake[0][1] == part[1])
         {
-            return true;
+            collision = true;
         }
-    }
+    });
+    return collision;
 }
 
 function keyDown(e)
@@ -213,7 +228,6 @@ function keyDown(e)
 function moveSnake(snake)
 {
     snakeDir = moveBuffer;
-    // Found a way to implement my janky offset code anyway - gb
     var dir = [0, 0];
     switch(snakeDir)
     {
@@ -231,9 +245,10 @@ function moveSnake(snake)
             break;
     }
     snake.unshift([snake[0][0] + dir[0], snake[0][1] + dir[1]]);
-    if(!eatFruit(snake, juicyApple))
+    let fed = 0;
+    fruitBasket.forEach(fruit => fed += fruit.eatFruit(snake));
+    if(fed == 0)
     {
-        // alert(juicyApple.fruitX, juicyApple.fruitY);
         snake.pop();
     }
     return snake;
