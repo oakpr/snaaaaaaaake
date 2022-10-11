@@ -10,6 +10,7 @@ document.onkeydown = keyDown;
 // body[i][1] = Y pos of ith segment
 // body[body.length] = (X, Y) of the "tail" segment
 var body = [];
+
 const CANVAS_SIZE = canvas.height;
 
 // Grid is a 20x20 grid on the canvas
@@ -97,10 +98,21 @@ class Fruit
     }
 }
 
+// Willow's portalfruit:
+// All credit to Willow and team snek
+class Portal extends Fruit {
+    
+    
+}
+
+
+
 let juicyApple = new Fruit(0, 0, 'red');
 let sourOrange = new Fruit(0, 0, 'orange');
 let unripeMango = new Fruit(0, 0, 'limegreen');
-let fruitBasket = [juicyApple, sourOrange, unripeMango];
+let rat = new Fruit(0, 0, "brown");
+
+let fruitBasket = [juicyApple, sourOrange, unripeMango, rat];
 fruitBasket.forEach(fruit => fruit.placeFruit());
 
 const speed = 5.0;
@@ -118,15 +130,17 @@ gameLoop();
 
 function gameLoop()
 {
+    // ctx.canvas.width  = Math.min(window.innerWidth, window.innerHeight);
+    // ctx.canvas.height = Math.min(window.innerWidth, window.innerHeight);
     window.requestAnimationFrame(gameLoop);
     score = score > body.length ? score : body.length;
-    let head = 'Sn';
+    let header_txt = 'Sn';
     for(i = 0; i < score; i++)
     {
-        head += 'a';
+        header_txt += 'a';
     }
-    head += 'ke';
-    heading.innerHTML = head;
+    header_txt += 'ke';
+    heading.innerHTML = header_txt;
     time += 1;
     drawBackground();
     // Movement loop:
@@ -158,7 +172,7 @@ function drawBackground()
 function drawSnake(snake)
 {
     ctx.fillStyle = 'green';
-    snake.forEach(part => ctx.fillRect(part[0] * GRID_SIZE, part[1] * GRID_SIZE, SNAKE_SIZE, SNAKE_SIZE))
+    snake.forEach(part => ctx.fillRect(part[0] * GRID_SIZE, part[1] * GRID_SIZE, SNAKE_SIZE, SNAKE_SIZE));
 }
 
 // collision check happens immidietly after movement step
