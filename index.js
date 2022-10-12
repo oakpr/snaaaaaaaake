@@ -11,6 +11,8 @@ document.onkeydown = keyDown;
 // body[body.length] = (X, Y) of the "tail" segment
 var body = [];
 
+const wrap = true;
+
 const CANVAS_SIZE = canvas.height;
 
 // Grid is a 20x20 grid on the canvas
@@ -147,15 +149,15 @@ function gameLoop()
     if(time >= time_interval) {
         time = 0;
         body = moveSnake(body);
-    }
-    if(checkCollision(body))
-    {
-        // restart the game
-        snakeDir = directions.NORTH;
-        moveBuffer = snakeDir;
-        body = Array();
-        body.push([3, GRID_COUNT - 3]);
-        body.push([3, GRID_COUNT - 2]);
+        if(checkCollision(body))
+        {
+            // restart the game
+            snakeDir = directions.NORTH;
+            moveBuffer = snakeDir;
+            body = Array();
+            body.push([3, GRID_COUNT - 3]);
+            body.push([3, GRID_COUNT - 2]);
+        }
     }
     portalBasket.forEach(fruit => fruit.drawFruit());
     drawSnake(body);
@@ -274,6 +276,28 @@ function moveSnake(snake)
     {
         snake.unshift([portal0.fruitX, portal0.fruitY]);
         portal0.setPosition(0, 0);
+    }
+    // screen wrap
+    // left or right walls
+    if(wrap)
+    {
+        if(snake[0][0] == 0)
+        {
+            snake[0][0] = GRID_COUNT - 2;
+        }
+        else if(snake[0][0] == GRID_COUNT - 1)
+        {
+            snake[0][0] = 1;
+        }
+        // top or bottom walls
+        if(snake[0][1] == 0)
+        {
+            snake[0][1] = GRID_COUNT - 2;
+        }
+        else if (snake[0][1] == GRID_COUNT - 1)
+        {
+            snake[0][1] = 1;
+        }
     }
     let fed = 0;
     fruitBasket.forEach(fruit => fed += fruit.eatFruit(snake));
