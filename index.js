@@ -74,6 +74,12 @@ class Fruit
                     shouldPlace = false;
                 }
             });
+            portalBasket.forEach(portal => {
+                if(portal.fruitX == randomX && portal.fruitY == randomY)
+                {
+                    shouldPlace = false;
+                }
+            });
             body.forEach(part => {
                 if(part[0] == randomX && part[1] == randomY)
                 {
@@ -98,22 +104,18 @@ class Fruit
     }
 }
 
-// Willow's portalfruit:
-// All credit to Willow and team snek
-class Portal extends Fruit {
-    
-    
-}
-
-
-
 let juicyApple = new Fruit(0, 0, 'red');
 let sourOrange = new Fruit(0, 0, 'orange');
-let unripeMango = new Fruit(0, 0, 'limegreen');
-let rat = new Fruit(0, 0, "brown");
+// let unripeMango = new Fruit(0, 0, 'limegreen');
+// let rat = new Fruit(0, 0, "brown");
+let fruitBasket = [juicyApple, sourOrange];
 
-let fruitBasket = [juicyApple, sourOrange, unripeMango, rat];
+let portal0 = new Fruit(0, 0, 'limegreen');
+let portal1 = new Fruit(0, 0, 'limegreen');
+let portalBasket = [portal0, portal1]
+
 fruitBasket.forEach(fruit => fruit.placeFruit());
+portalBasket.forEach(portal => portal.placeFruit());
 
 const speed = 5.0;
 const time_interval = 60 / speed;
@@ -130,8 +132,6 @@ gameLoop();
 
 function gameLoop()
 {
-    // ctx.canvas.width  = Math.min(window.innerWidth, window.innerHeight);
-    // ctx.canvas.height = Math.min(window.innerWidth, window.innerHeight);
     window.requestAnimationFrame(gameLoop);
     score = score > body.length ? score : body.length;
     let header_txt = 'Sn';
@@ -157,6 +157,7 @@ function gameLoop()
         body.push([3, GRID_COUNT - 3]);
         body.push([3, GRID_COUNT - 2]);
     }
+    portalBasket.forEach(fruit => fruit.drawFruit());
     drawSnake(body);
     fruitBasket.forEach(fruit => fruit.drawFruit());
 }
@@ -258,10 +259,25 @@ function moveSnake(snake)
             dir = [-1, 0];
             break;
     }
-    snake.unshift([snake[0][0] + dir[0], snake[0][1] + dir[1]]);
+    let port = 0;
+    portalBasket.forEach(portal => port += portal.eatFruit(snake));
+    if(port == 0)
+    {
+        snake.unshift([snake[0][0] + dir[0], snake[0][1] + dir[1]]);
+    }
+    else if(portal0.fruitX == 0)
+    {
+        snake.unshift([portal1.fruitX, portal1.fruitY]);
+        portal1.setPosition(0, 0);
+    }
+    else if(portal1.fruitX == 0)
+    {
+        snake.unshift([portal0.fruitX, portal0.fruitY]);
+        portal0.setPosition(0, 0);
+    }
     let fed = 0;
     fruitBasket.forEach(fruit => fed += fruit.eatFruit(snake));
-    if(fed == 0)
+    if(fed == 0 && port == 0)
     {
         snake.pop();
     }
